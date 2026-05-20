@@ -1,0 +1,100 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[indonesian]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\geometry{
+	a4paper,
+	total={170mm,257mm},
+	left=20mm,
+	top=20mm,
+}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+\title{\textbf{Laporan Evaluasi Tengah Semester (ETS)\\Bagian B - Pemrograman Kontroler}}
+\author{Abigail \\ Kelas 4B}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Fase 1: Studi Literatur}
+Berdasarkan penugasan, telah dilakukan tinjauan terhadap 16 jurnal terindeks Scopus/WoS Q1-Q3 yang berkaitan dengan akuisisi data, penjadwalan real-time, arsitektur memori hibrid, dan analisis energi pada mikrokontroler ARM Cortex-M.
+
+Ringkasan komprehensif (Future Work) dari ke-16 jurnal tersebut kemudian digabungkan untuk menghasilkan suatu gagasan metode baru yang komprehensif. Daftar lengkap jurnal dan \textit{future work} terlampir pada file repository proyek.
+
+\section{Fase 2: Perancangan Metode Baru}
+Berdasarkan sintesis \textit{future work}, diusulkan metode baru dengan judul:
+\begin{quote}
+\textbf{"Adaptive Safety-Critical Multi-Sensor Acquisition Framework with Priority-Deadline Hybrid Scheduling and Hybrid Memory Optimization on STM32F407VGTx"}
+\end{quote}
+
+\subsection{Komponen Utama Sistem}
+Sistem ini mengintegrasikan beberapa pendekatan:
+\begin{enumerate}
+    \item \textbf{Adaptive ADC DMA:} Kecepatan sampling bervariasi bergantung pada dinamika sinyal.
+    \item \textbf{Hybrid Memory Placement:} Pemanfaatan CCM (Core Coupled Memory) untuk buffer kritis.
+    \item \textbf{Priority-Deadline Scheduler:} Penjadwalan FreeRTOS dengan pemisahan tugas berdasarkan urgensi dan batas waktu.
+    \item \textbf{Safety Barrier Monitoring:} Penggunaan WWDG dan Control Barrier Function (CBF) untuk mitigasi kegagalan.
+\end{enumerate}
+
+\section{Fase 3: Simulasi dan Implementasi}
+Sistem diimplementasikan menggunakan STM32CubeMX dan Keil $\mu$Vision. Karena keterbatasan model pada simulator, pengujian dilakukan menggunakan mikrokontroler \textbf{STM32F401VE} di Proteus yang memiliki arsitektur Cortex-M4 serupa.
+
+\subsection{Konfigurasi Sistem RTOS}
+Sistem menjalankan empat \textit{task} utama secara paralel:
+\begin{itemize}
+    \item \texttt{Task\_SafetyCheck} (Prioritas: \textit{Realtime}) - Memonitor ambang batas tegangan.
+    \item \texttt{Task\_SensorRead} (Prioritas: \textit{High}) - Mengambil data ADC dengan kecepatan adaptif.
+    \item \texttt{Task\_DataProcess} (Prioritas: \textit{Normal}) - Pemfilteran data dan kontrol PWM aktuator.
+    \item \texttt{Task\_CommOutput} (Prioritas: \textit{Low}) - Komunikasi UART dan I2C.
+\end{itemize}
+
+\subsection{Pengujian Perangkat Keras}
+Pada simulasi Proteus, dua potensiometer bertindak sebagai representasi dua sensor analog. Mikrokontroler berhasil mengeksekusi konversi ADC via DMA, memfilter data dengan rata-rata bergerak (\textit{moving average}), dan mengatur siklus kerja (\textit{duty cycle}) pada pin keluaran PWM dengan frekuensi 10 kHz. 
+
+Fitur \textit{watchdog timer} (WWDG) dan CBF berfungsi optimal, terbukti saat simulasi diarahkan ke nilai batas (0V atau 3.3V), sistem masuk ke fase \textit{FAULT} dan mengamankan \textit{output}.
+
+\section{Fase 4: Dokumentasi}
+Seluruh struktur proyek telah disesuaikan dengan prinsip \textit{SOLID} dan diunggah ke repository GitHub secara terorganisir. Proyek ini memuat \textit{source code}, fail simulasi, serta skrip plotting GNUPlot untuk visualisasi data sensor.
+
+\section{Kesimpulan}
+Framework yang dikembangkan telah berhasil menggabungkan 16 saran pengembangan masa depan (future work) menjadi sistem terintegrasi yang andal. Penggunaan STM32F4 series dengan lingkungan FreeRTOS membuktikan kelayakan implementasi konsep akuisisi multivariabel secara adaptif dengan manajemen memori berbasis prioritas.
+
+\end{document}

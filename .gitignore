@@ -1,0 +1,38 @@
+# === Build artifacts ===
+*.o
+*.d
+*.hex
+*.bin
+*.elf
+*.map
+*.lst
+*.axf
+*.dep
+*.crf
+*.lnp
+*.build_log.htm
+
+# === Keil µVision ===
+Objects/
+Listings/
+RTE/
+DebugConfig/
+*.uvguix.*
+*.bak
+*.dbgconf
+
+# === STM32CubeMX ===
+.mxproject
+
+# === Proteus ===
+*.PWI
+Backup of *
+
+# === OS ===
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# === IDE ===
+.vscode/
+.idea/
