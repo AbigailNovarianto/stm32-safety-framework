@@ -1,4 +1,4 @@
-# Adaptive Safety-Critical Multi-Sensor Acquisition Framework with Priority-Deadline Hybrid Scheduling and Hybrid Memory Optimization on STM32
+# Safety-Critical Multi-Sensor Acquisition Framework with Priority-Deadline Hybrid Scheduling and Hybrid Memory Optimization on STM32
 
 > A novel integrated embedded system approach on STM32F4 series combining 16 future research directions from peer-reviewed Scopus/WoS journal articles into a single, simulatable system.
 
