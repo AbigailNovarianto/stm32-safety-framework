@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Diagram Blok Sistem — Adaptive Safety-Critical Framework</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#fff;font-family:'Inter',sans-serif;color:#1a1a2e;display:flex;justify-content:center;padding:30px}
+.page{width:1280px;background:#fff}
+.title-block{text-align:center;margin-bottom:28px;padding-bottom:18px;border-bottom:2px solid #1a1a2e}
+.title-block h1{font-size:15px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#1a1a2e;margin-bottom:4px}
+.title-block .subtitle{font-size:11.5px;color:#555;font-weight:400}
+.fig-caption{text-align:center;margin-top:16px;font-size:11.5px;color:#333}
+.fig-caption b{font-weight:600}
+
+/* Layer labels */
+.layer-label{font-size:10.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 14px;border-radius:3px;display:inline-block;margin-bottom:10px}
+.layer-label.input{background:#e3f2fd;color:#0d47a1;border:1px solid #90caf9}
+.layer-label.mcu{background:#eceff1;color:#263238;border:1px solid #90a4ae}
+.layer-label.output{background:#e8f5e9;color:#1b5e20;border:1px solid #81c784}
+
+/* Containers */
+.input-layer,.output-layer{display:flex;justify-content:center;gap:24px;margin-bottom:6px}
+.mcu-container{border:2.5px solid #37474f;border-radius:6px;padding:18px 20px 16px;margin:14px 40px;position:relative;background:#fafbfc}
+.mcu-header{position:absolute;top:-13px;left:24px;background:#37474f;color:#fff;font-size:10.5px;font-weight:600;padding:3px 12px;border-radius:3px;letter-spacing:.5px}
+
+/* Subsystem groups */
+.subsystem{border:1.5px solid;border-radius:5px;padding:12px 10px 10px;position:relative;margin:4px}
+.subsystem .ss-label{position:absolute;top:-10px;left:12px;font-size:9.5px;font-weight:600;padding:1px 8px;border-radius:2px;letter-spacing:.3px}
+.ss-acq{border-color:#0288d1;background:#f0f9ff}.ss-acq .ss-label{background:#0288d1;color:#fff}
+.ss-mem{border-color:#7b1fa2;background:#fdf5ff}.ss-mem .ss-label{background:#7b1fa2;color:#fff}
+.ss-sched{border-color:#2e7d32;background:#f1f8f1}.ss-sched .ss-label{background:#2e7d32;color:#fff}
+.ss-safety{border-color:#c62828;background:#fff5f5}.ss-safety .ss-label{background:#c62828;color:#fff}
+.ss-proto{border-color:#e65100;background:#fff8f0}.ss-proto .ss-label{background:#e65100;color:#fff}
+
+/* Block nodes */
+.block{border:1.5px solid #455a64;border-radius:4px;padding:8px 12px;text-align:center;background:#fff;min-width:110px;font-size:10px;line-height:1.45;transition:box-shadow .2s}
+.block .block-title{font-weight:600;font-size:10.5px;color:#1a1a2e;margin-bottom:2px}
+.block .block-detail{font-size:9.5px;color:#546e7a;font-family:'JetBrains Mono',monospace}
+.block.input-block{border-color:#1565c0;background:#e8f0fe}
+.block.output-block{border-color:#2e7d32;background:#edf7ee}
+.block.task-block{border-color:#2e7d32;background:#fff}
+.block.safety-block{border-color:#c62828;background:#fff}
+.block.kernel-block{border-color:#1b5e20;background:#c8e6c9;font-weight:600}
+
+/* Grid layouts inside MCU */
+.mcu-row{display:flex;gap:14px;margin-bottom:10px;align-items:stretch}
+.mcu-row.top{justify-content:center}
+.mcu-row.mid{justify-content:center}
+.mcu-row.bot{justify-content:center}
+.subsystem{flex:1}
+.ss-inner{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;padding-top:6px}
+
+/* Priority badges */
+.badge{display:inline-block;font-size:8px;font-weight:700;padding:1px 6px;border-radius:2px;letter-spacing:.3px;margin-top:2px}
+.badge.critical{background:#ffcdd2;color:#b71c1c}
+.badge.high{background:#fff9c4;color:#f57f17}
+.badge.med{background:#c8e6c9;color:#1b5e20}
+.badge.low{background:#e0e0e0;color:#424242}
+
+/* SVG overlay */
+.svg-layer{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10}
+.diagram-wrap{position:relative}
+
+/* Arrow styling */
+.arrow-line{stroke:#546e7a;stroke-width:1.6;fill:none}
+.arrow-head{fill:#546e7a}
+.arrow-label{font-family:'Inter',sans-serif;font-size:9px;fill:#37474f;font-weight:500}
+.arrow-line.data{stroke:#0288d1;stroke-dasharray:none}.arrow-head.data{fill:#0288d1}
+.arrow-line.control{stroke:#c62828;stroke-dasharray:5,3}.arrow-head.control{fill:#c62828}
+.arrow-line.feedback{stroke:#7b1fa2;stroke-dasharray:3,3}.arrow-head.feedback{fill:#7b1fa2}
+
+/* Legend */
+.legend{display:flex;gap:24px;justify-content:center;margin-top:14px;padding:8px 16px;border:1px solid #cfd8dc;border-radius:4px;background:#fafafa}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:9.5px;color:#455a64}
+.legend-line{width:30px;height:0;border-top:2px solid}
+.legend-line.l-data{border-color:#0288d1}
+.legend-line.l-ctrl{border-color:#c62828;border-top-style:dashed}
+.legend-line.l-fb{border-color:#7b1fa2;border-top-style:dotted}
+.legend-line.l-flow{border-color:#546e7a}
+
+/* Section alignment helpers */
+.center-row{display:flex;justify-content:center;align-items:flex-start;flex-direction:column;align-items:center}
+.gap-sm{gap:6px}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="title-block">
+    <h1>Diagram Blok Sistem</h1>
+    <div class="subtitle">Adaptive Safety-Critical Multi-Sensor Acquisition Framework — STM32F407VGTx</div>
+  </div>
+
+  <div class="diagram-wrap" id="diagram">
+
+    <!-- ======== INPUT LAYER ======== -->
+    <div class="center-row" style="margin-bottom:4px">
+      <span class="layer-label input">Input Layer</span>
+    </div>
+    <div class="input-layer">
+      <div class="block input-block" id="S1">
+        <div class="block-title">Sensor 1</div>
+        <div class="block-detail">Analog ADC CH0<br>(Suhu / Tekanan)</div>
+      </div>
+      <div class="block input-block" id="S2">
+        <div class="block-title">Sensor 2</div>
+        <div class="block-detail">Analog ADC CH1<br>(Kelembaban / Arus)</div>
+      </div>
+      <div class="block input-block" id="S3">
+        <div class="block-title">Fault Signal</div>
+        <div class="block-detail">Digital GPIO<br>(Alarm Eksternal)</div>
+      </div>
+    </div>
+
+    <!-- Connection labels between input and MCU -->
+    <div style="display:flex;justify-content:center;gap:120px;margin:6px 0;font-size:9px;color:#0d47a1;font-weight:500">
+      <span>V<sub>in</sub> 0–3.3 V</span>
+      <span>V<sub>in</sub> 0–3.3 V</span>
+      <span style="color:#c62828">GPIO IRQ</span>
+    </div>
+
+    <!-- ======== MCU CONTAINER ======== -->
+    <div class="mcu-container">
+      <div class="mcu-header">⚙ STM32F407VGTx — ARM Cortex-M4 @ 168 MHz</div>
+
+      <!-- Row 1: Data Acquisition + Memory Management -->
+      <div class="mcu-row top">
+        <div class="subsystem ss-acq" style="flex:2">
+          <span class="ss-label">Akuisisi Data (FW3, FW10)</span>
+          <div class="ss-inner">
+            <div class="block" id="ADC">
+              <div class="block-title">ADC1 Multi-Channel</div>
+              <div class="block-detail">12-bit, 2.4 MSPS</div>
+            </div>
+            <div class="block" id="DMA">
+              <div class="block-title">DMA Controller</div>
+              <div class="block-detail">Circular Mode</div>
+            </div>
+            <div class="block" id="ADAPT">
+              <div class="block-title">Adaptive Sampling</div>
+              <div class="block-detail">Rate Controller<br>(Level-Crossing Logic)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="subsystem ss-mem" style="flex:1">
+          <span class="ss-label">Manajemen Memori (FW9)</span>
+          <div class="ss-inner" style="flex-direction:column;align-items:center">
+            <div class="block" id="CCM">
+              <div class="block-title">CCM SRAM 64 KB</div>
+              <div class="block-detail">Critical ISR Buffer<br>(TCM Equivalent)</div>
+            </div>
+            <div class="block" id="CACHE">
+              <div class="block-title">D-Cache / I-Cache</div>
+              <div class="block-detail">General Data</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2: Real-Time Scheduling -->
+      <div class="mcu-row mid">
+        <div class="subsystem ss-sched" style="flex:1">
+          <span class="ss-label">Penjadwalan Real-Time (FW6, FW13)</span>
+          <div class="ss-inner" style="flex-direction:column;align-items:center;gap:8px">
+            <div class="block kernel-block" id="RTOS">
+              <div class="block-title">FreeRTOS Kernel</div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+              <div class="block task-block" id="T3">
+                <div class="block-title">Task: SafetyCheck</div>
+                <span class="badge critical">CRITICAL</span>
+                <div class="block-detail">Deadline = 0.5 ms</div>
+              </div>
+              <div class="block task-block" id="T1">
+                <div class="block-title">Task: SensorRead</div>
+                <span class="badge high">HIGH</span>
+                <div class="block-detail">Deadline = 1 ms</div>
+              </div>
+              <div class="block task-block" id="T2">
+                <div class="block-title">Task: DataProcess</div>
+                <span class="badge med">NORMAL</span>
+                <div class="block-detail">Deadline = 5 ms</div>
+              </div>
+              <div class="block task-block" id="T4">
+                <div class="block-title">Task: CommOutput</div>
+                <span class="badge low">LOW</span>
+                <div class="block-detail">Deadline = 10 ms</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 3: Safety Monitor + Multi-Protocol Gateway -->
+      <div class="mcu-row bot">
+        <div class="subsystem ss-safety" style="flex:1">
+          <span class="ss-label">Safety Monitor (FW15, FW16)</span>
+          <div class="ss-inner">
+            <div class="block safety-block" id="CBF">
+              <div class="block-title">Threshold Barrier</div>
+              <div class="block-detail">Checker<br>(simplified CBF)</div>
+            </div>
+            <div class="block safety-block" id="FSM">
+              <div class="block-title">Fault State Machine</div>
+              <div class="block-detail">Normal → Warning → Fault</div>
+            </div>
+            <div class="block safety-block" id="WWDG">
+              <div class="block-title">Window Watchdog</div>
+              <div class="block-detail">(WWDG)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="subsystem ss-proto" style="flex:1">
+          <span class="ss-label">Multi-Protocol Gateway (FW11)</span>
+          <div class="ss-inner">
+            <div class="block" id="UART">
+              <div class="block-title">USART1</div>
+              <div class="block-detail">Data Logger<br>115200 bps</div>
+            </div>
+            <div class="block" id="I2C">
+              <div class="block-title">I2C1</div>
+              <div class="block-detail">Display / Slave</div>
+            </div>
+            <div class="block" id="SPI">
+              <div class="block-title">SPI1</div>
+              <div class="block-detail">External Memory</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- end mcu-container -->
+
+    <!-- Connection labels between MCU and output -->
+    <div style="display:flex;justify-content:center;gap:60px;margin:6px 0;font-size:9px;font-weight:500">
+      <span style="color:#0288d1">PWM Duty</span>
+      <span style="color:#c62828">State Signal</span>
+      <span style="color:#546e7a">UART TX</span>
+      <span style="color:#546e7a">I2C Data</span>
+    </div>
+
+    <!-- ======== OUTPUT LAYER ======== -->
+    <div class="center-row" style="margin-bottom:4px;margin-top:4px">
+      <span class="layer-label output">Output Layer</span>
+    </div>
+    <div class="output-layer">
+      <div class="block output-block" id="PWM">
+        <div class="block-title">TIM1 PWM</div>
+        <div class="block-detail">Aktuator Kontrol</div>
+      </div>
+      <div class="block output-block" id="LED">
+        <div class="block-title">LED Indikator</div>
+        <div class="block-detail">Normal / Warning / Fault</div>
+      </div>
+      <div class="block output-block" id="TERM">
+        <div class="block-title">Terminal UART</div>
+        <div class="block-detail">Data Logging</div>
+      </div>
+      <div class="block output-block" id="DISP">
+        <div class="block-title">I2C Display</div>
+        <div class="block-detail">Real-Time Status</div>
+      </div>
+    </div>
+
+    <!-- SVG Arrow Overlay -->
+    <svg class="svg-layer" id="arrows"></svg>
+  </div><!-- end diagram-wrap -->
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-line l-data"></div>Data Flow</div>
+    <div class="legend-item"><div class="legend-line l-ctrl"></div>Control / Safety</div>
+    <div class="legend-item"><div class="legend-line l-fb"></div>Feedback</div>
+    <div class="legend-item"><div class="legend-line l-flow"></div>Signal Flow</div>
+  </div>
+
+  <div class="fig-caption"><b>Gambar 1.</b> Diagram blok arsitektur framework — Adaptive Safety-Critical Multi-Sensor Acquisition</div>
+</div>
+
+<script>
+const svg = document.getElementById('arrows');
+const wrap = document.getElementById('diagram');
+
+function getCenter(id) {
+  const el = document.getElementById(id);
+  const r = el.getBoundingClientRect();
+  const wr = wrap.getBoundingClientRect();
+  return {
+    x: r.left - wr.left + r.width/2,
+    y: r.top - wr.top + r.height/2,
+    t: r.top - wr.top,
+    b: r.top - wr.top + r.height,
+    l: r.left - wr.left,
+    r: r.left - wr.left + r.width
+  };
+}
+
+function arrow(fromId, toId, cls='', label='', side='tb') {
+  const f = getCenter(fromId);
+  const t = getCenter(toId);
+  let x1,y1,x2,y2;
+  if (side==='tb'){x1=f.x;y1=f.b;x2=t.x;y2=t.t}
+  else if(side==='bt'){x1=f.x;y1=f.t;x2=t.x;y2=t.b}
+  else if(side==='lr'){x1=f.r;y1=f.y;x2=t.l;y2=t.y}
+  else if(side==='rl'){x1=f.l;y1=f.y;x2=t.r;y2=t.y}
+  else{x1=f.x;y1=f.b;x2=t.x;y2=t.t}
+
+  const mid = (y1+y2)/2;
+  const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+  let d;
+  if(side==='tb'||side==='bt') d=`M${x1},${y1} C${x1},${mid} ${x2},${mid} ${x2},${y2}`;
+  else d=`M${x1},${y1} C${(x1+x2)/2},${y1} ${(x1+x2)/2},${y2} ${x2},${y2}`;
+  path.setAttribute('d',d);
+  path.setAttribute('class','arrow-line '+(cls||''));
+  path.setAttribute('marker-end',`url(#ah-${cls||'default'})`);
+  svg.appendChild(path);
+
+  if(label){
+    const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt.setAttribute('x',(x1+x2)/2+4);
+    txt.setAttribute('y',(y1+y2)/2 - 4);
+    txt.setAttribute('class','arrow-label');
+    txt.textContent=label;
+    svg.appendChild(txt);
+  }
+}
+
+function initSVG(){
+  const wr = wrap.getBoundingClientRect();
+  svg.setAttribute('width', wr.width);
+  svg.setAttribute('height', wr.height);
+
+  // Arrowhead markers
+  const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
+  ['default','data','control','feedback'].forEach(cls=>{
+    const m = document.createElementNS('http://www.w3.org/2000/svg','marker');
+    m.setAttribute('id','ah-'+cls);
+    m.setAttribute('markerWidth','8');m.setAttribute('markerHeight','6');
+    m.setAttribute('refX','8');m.setAttribute('refY','3');
+    m.setAttribute('orient','auto');
+    const p = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    p.setAttribute('points','0 0, 8 3, 0 6');
+    p.setAttribute('class','arrow-head '+cls);
+    m.appendChild(p);defs.appendChild(m);
+  });
+  svg.appendChild(defs);
+
+  // Draw key connections
+  arrow('S1','ADC','data','','tb');
+  arrow('S2','ADC','data','','tb');
+  arrow('ADC','DMA','data','','lr');
+  arrow('DMA','ADAPT','data','','lr');
+  arrow('ADAPT','CCM','data','','lr');
+  arrow('CCM','T1','data','','tb');
+  arrow('CACHE','T2','data','','tb');
+  arrow('RTOS','T3','','','tb');
+  arrow('T3','CBF','control','','tb');
+  arrow('CBF','FSM','control','','lr');
+  arrow('FSM','WWDG','control','FAULT','lr');
+  arrow('T4','UART','','','tb');
+  arrow('T2','PWM','data','','tb');
+  arrow('FSM','LED','control','','tb');
+  arrow('UART','TERM','','','tb');
+  arrow('I2C','DISP','','','tb');
+}
+
+window.addEventListener('load', ()=>{ setTimeout(initSVG, 100); });
+window.addEventListener('resize', ()=>{ svg.innerHTML=''; setTimeout(initSVG, 100); });
+</script>
+</body>
+</html>

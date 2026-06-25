@@ -22,7 +22,7 @@ DebugConfig/
 *.dbgconf
 
 # === STM32CubeMX ===
-.mxproject
+*.mxproject
 
 # === Proteus ===
 *.PWI
@@ -36,3 +36,26 @@ desktop.ini
 # === IDE ===
 .vscode/
 .idea/
+
+# === LaTeX ===
+*.aux
+*.log
+*.toc
+*.lof
+*.lot
+*.out
+*.bbl
+*.blg
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+
+# === Proteus Workspace ===
+*.workspace
+*.pdsprj.ABIGAILPC.*
+*Backup*
+Project Backups/
+*\[Autosaved\]*
+
+
+
